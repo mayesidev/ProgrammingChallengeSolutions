@@ -1,15 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿//Paste current solution's code in here for testing the same as their submission form.
+using System.IO;
 
-namespace CodeEvalSolutions
+class Program
 {
-    class Program
+    static void Main(string[] args)
     {
-        static void Main(string[] args)
+        int i = 1;
+        while (i < 100)
         {
+            if (i % 2 == 1)
+            {
+                System.Console.Out.WriteLine(i);
+            }
+            i++;
         }
     }
 }
