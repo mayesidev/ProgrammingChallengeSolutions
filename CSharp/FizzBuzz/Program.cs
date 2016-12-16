@@ -30,7 +30,7 @@ namespace FizzBuzz
 						var limit = parsedInputs[2];
 						for (int i = 1; i <= limit; i++)
 						{
-							if (!(i % fizz == 0) && !(i % buzz == 0))
+							if (i % fizz != 0 && i % buzz != 0)
 							{
 								Console.Out.Write(i.ToString());
 							}
