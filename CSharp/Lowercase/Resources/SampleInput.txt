@@ -1,0 +1,8 @@
+﻿//TODO: Replace the contents of this file with any sample input to use for testing!
+
+//TODO: Add this file as a command line argument for debugging.
+// In Visual Studio, right click on your project.
+// Select 'Properties'.
+// Select 'Debug' (on the left-hand side).
+// Add ".\Resources\SampleInput.txt" in the 'Command line arguments' box.
+// Save the project file changes.
