@@ -4,7 +4,7 @@ namespace _2023
     {
         public static void Main(string[] args)
         {
-            Console.WriteLine(DayOne.Solve("./DayOne/input.txt"));
+            // Console.WriteLine(DayOne.Solve("./DayOne/input.txt"));
             Console.WriteLine(DayTwo.Solve("./DayTwo/input.txt"));
         }
     }
