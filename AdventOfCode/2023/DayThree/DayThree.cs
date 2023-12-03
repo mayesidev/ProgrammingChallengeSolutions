@@ -6,7 +6,7 @@ namespace _2023
     {
         public static string Solve(string filePath)
         {
-            var total = 0;
+            var partOneTotal = 0;
             var nums = new HashSet<NumLocation>();
             var symbols = new HashSet<SymbolLocation>();
             using (StreamReader reader = File.OpenText(filePath))
@@ -44,7 +44,7 @@ namespace _2023
                                 // add all index occurances of a found symbol at once
                                 for (int i = line.IndexOf(foundMatch); i > -1; i = line.IndexOf(foundMatch, i + 1))
                                 {
-                                    symbols.Add(new SymbolLocation(lineIndex, i, foundMatch));
+                                    symbols.Add(new SymbolLocation(lineIndex, i, foundMatch, []));
                                 }
                             }
                         }
@@ -59,18 +59,29 @@ namespace _2023
                 var lineAfterNum = num.line + 1;
                 var numStartIndex = num.index - 1;
                 var numEndIndex = num.index + num.num.ToString().Length; // start index + length of num to get end index
-                if (symbols.Any(symbol =>
+                var touchingSymbols = symbols.Where(symbol =>
                     (symbol.line == num.line && (symbol.index == numStartIndex || symbol.index == numEndIndex)) // same line, immediately before or after
                     || (symbol.line == lineBeforeNum && symbol.index >= numStartIndex && symbol.index <= numEndIndex) // line before, any touching index (-1,match,+1)
                     || (symbol.line == lineAfterNum && symbol.index >= numStartIndex && symbol.index <= numEndIndex) // line after, any touching index (-1,matched,+1)
-                    ))
+                    );
+                if (touchingSymbols.Any())
                 {
                     Console.WriteLine($"{num.num} on line {num.line} touches something");
-                    total += num.num;
+                    partOneTotal += num.num;
+
+                    foreach(var symbol in touchingSymbols)
+                    {
+                        if(symbol.symbol.Equals("*"))
+                        {
+                            symbol.touchingNums.Add(num.num);
+                        }
+                    }
                 }
             }
 
-            return total.ToString();
+            var partTwoTotal = symbols.Where(symbol=>symbol.touchingNums.Count==2).Sum(symbol=>symbol.touchingNums.Aggregate((first,next)=>first*next));
+
+            return $"{partOneTotal}, {partTwoTotal}";
         }
 
         internal class NumLocation(int line, int index, int num)
@@ -80,11 +91,12 @@ namespace _2023
             public int num = num;
         }
 
-        internal class SymbolLocation(int line, int index, string symbol)
+        internal class SymbolLocation(int line, int index, string symbol, List<int> touchingNums)
         {
             public int line = line;
             public int index = index;
             public string symbol = symbol;
+            public List<int> touchingNums = touchingNums;
         }
     }
 }
