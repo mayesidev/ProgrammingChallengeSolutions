@@ -5,13 +5,13 @@ namespace _2023
         public static string Solve(string filePath)
         {
             var seeds = new List<long>();
-            var seedSoil = new Dictionary<long, long>();
-            var soilFertilizer = new Dictionary<long, long>();
-            var fertilizerWater = new Dictionary<long, long>();
-            var waterLight = new Dictionary<long, long>();
-            var lightTemperature = new Dictionary<long, long>();
-            var temperatureHumidity = new Dictionary<long, long>();
-            var humidityLocation = new Dictionary<long, long>();
+            var seedSoil = new List<ThingMap>();
+            var soilFertilizer = new List<ThingMap>();
+            var fertilizerWater = new List<ThingMap>();
+            var waterLight = new List<ThingMap>();
+            var lightTemperature = new List<ThingMap>();
+            var temperatureHumidity = new List<ThingMap>();
+            var humidityLocation = new List<ThingMap>();
             var currentlyParsing = ParsingMapEnum.none;
             using (StreamReader reader = File.OpenText(filePath))
             {
@@ -71,14 +71,8 @@ namespace _2023
                         var sourceNum = inputs[1];
                         var rangeNum = inputs[2];
 
-                        while (rangeNum > 0)
-                        {
-                            Log($"seed {sourceNum} to soil {destinationNum}");
-                            seedSoil.Add(sourceNum, destinationNum);
-                            destinationNum++;
-                            sourceNum++;
-                            rangeNum--;
-                        }
+                        Log($"seeds: {sourceNum}, soils: {destinationNum}, range: {rangeNum}");
+                        seedSoil.Add(new ThingMap(sourceNum, destinationNum, rangeNum));
                     }
                     else if (currentlyParsing == ParsingMapEnum.soilFertilizer)
                     {
@@ -87,14 +81,8 @@ namespace _2023
                         var sourceNum = inputs[1];
                         var rangeNum = inputs[2];
 
-                        while (rangeNum > 0)
-                        {
-                            Log($"soil {sourceNum} to fertilizer {destinationNum}");
-                            soilFertilizer.Add(sourceNum, destinationNum);
-                            destinationNum++;
-                            sourceNum++;
-                            rangeNum--;
-                        }
+                        Log($"soil: {sourceNum}, fertilizer: {destinationNum}, range: {rangeNum}");
+                        soilFertilizer.Add(new ThingMap(sourceNum, destinationNum, rangeNum));
                     }
                     else if (currentlyParsing == ParsingMapEnum.fertilizerWater)
                     {
@@ -103,14 +91,8 @@ namespace _2023
                         var sourceNum = inputs[1];
                         var rangeNum = inputs[2];
 
-                        while (rangeNum > 0)
-                        {
-                            Log($"fertilizer {sourceNum} to water {destinationNum}");
-                            fertilizerWater.Add(sourceNum, destinationNum);
-                            destinationNum++;
-                            sourceNum++;
-                            rangeNum--;
-                        }
+                        Log($"fertilizer: {sourceNum}, water: {destinationNum}, range: {rangeNum}");
+                        fertilizerWater.Add(new ThingMap(sourceNum, destinationNum, rangeNum));
                     }
                     else if (currentlyParsing == ParsingMapEnum.waterLight)
                     {
@@ -119,14 +101,8 @@ namespace _2023
                         var sourceNum = inputs[1];
                         var rangeNum = inputs[2];
 
-                        while (rangeNum > 0)
-                        {
-                            Log($"water {sourceNum} to light {destinationNum}");
-                            waterLight.Add(sourceNum, destinationNum);
-                            destinationNum++;
-                            sourceNum++;
-                            rangeNum--;
-                        }
+                        Log($"water: {sourceNum}, light: {destinationNum}, range: {rangeNum}");
+                        waterLight.Add(new ThingMap(sourceNum, destinationNum, rangeNum));
                     }
                     else if (currentlyParsing == ParsingMapEnum.lightTemperature)
                     {
@@ -135,14 +111,8 @@ namespace _2023
                         var sourceNum = inputs[1];
                         var rangeNum = inputs[2];
 
-                        while (rangeNum > 0)
-                        {
-                            Log($"light {sourceNum} to temperature {destinationNum}");
-                            lightTemperature.Add(sourceNum, destinationNum);
-                            destinationNum++;
-                            sourceNum++;
-                            rangeNum--;
-                        }
+                        Log($"light: {sourceNum}, temperature: {destinationNum}, range: {rangeNum}");
+                        lightTemperature.Add(new ThingMap(sourceNum, destinationNum, rangeNum));
                     }
                     else if (currentlyParsing == ParsingMapEnum.temperatureHumidity)
                     {
@@ -151,14 +121,8 @@ namespace _2023
                         var sourceNum = inputs[1];
                         var rangeNum = inputs[2];
 
-                        while (rangeNum > 0)
-                        {
-                            Log($"temperature {sourceNum} to humidity {destinationNum}");
-                            temperatureHumidity.Add(sourceNum, destinationNum);
-                            destinationNum++;
-                            sourceNum++;
-                            rangeNum--;
-                        }
+                        Log($"temperature: {sourceNum}, humidity: {destinationNum}, range: {rangeNum}");
+                        temperatureHumidity.Add(new ThingMap(sourceNum, destinationNum, rangeNum));
                     }
                     else if (currentlyParsing == ParsingMapEnum.humidityLocation)
                     {
@@ -167,14 +131,8 @@ namespace _2023
                         var sourceNum = inputs[1];
                         var rangeNum = inputs[2];
 
-                        while (rangeNum > 0)
-                        {
-                            Log($"humidity {sourceNum} to location {destinationNum}");
-                            humidityLocation.Add(sourceNum, destinationNum);
-                            destinationNum++;
-                            sourceNum++;
-                            rangeNum--;
-                        }
+                        Log($"humidity: {sourceNum}, location: {destinationNum}, range: {rangeNum}");
+                        humidityLocation.Add(new ThingMap(sourceNum, destinationNum, rangeNum));
                     }
                 }
 
@@ -182,25 +140,33 @@ namespace _2023
                 foreach (var seed in seeds)
                 {
                     Log($"Mapping seed: {seed}");
-                    var soil = seedSoil.TryGetValue(seed, out long foundSoil) ? foundSoil : seed;
+
+                    var soilRecord = seedSoil.FirstOrDefault(mappedThing => mappedThing.sourceStart < seed && mappedThing.sourceStart + mappedThing.range > seed);
+                    var soil = soilRecord != null ? soilRecord.destStart + (seed - soilRecord.sourceStart) : seed;
                     Log($"To soil: {soil}");
 
-                    var fertilizer = soilFertilizer.TryGetValue(soil, out long foundFertilizer) ? foundFertilizer : soil;
+                    var fertilizerRecord = soilFertilizer.FirstOrDefault(mappedThing => mappedThing.sourceStart < soil && mappedThing.sourceStart + mappedThing.range > soil);
+                    var fertilizer = fertilizerRecord != null ? fertilizerRecord.destStart + (soil - fertilizerRecord.sourceStart) : soil;
                     Log($"To fertilizer: {fertilizer}");
 
-                    var water = fertilizerWater.TryGetValue(fertilizer, out long foundWater) ? foundWater : fertilizer;
+                    var waterRecord = fertilizerWater.FirstOrDefault(mappedThing => mappedThing.sourceStart < fertilizer && mappedThing.sourceStart + mappedThing.range > fertilizer);
+                    var water = waterRecord != null ? waterRecord.destStart + (fertilizer - waterRecord.sourceStart) : fertilizer;
                     Log($"To water: {water}");
 
-                    var light = waterLight.TryGetValue(water, out long foundLight) ? foundLight : water;
+                    var lightRecord = waterLight.FirstOrDefault(mappedThing => mappedThing.sourceStart < water && mappedThing.sourceStart + mappedThing.range > water);
+                    var light = lightRecord != null ? lightRecord.destStart + (water - lightRecord.sourceStart) : water;
                     Log($"To light: {light}");
 
-                    var temperature = lightTemperature.TryGetValue(light, out long foundTemperature) ? foundTemperature : light;
+                    var temperatureRecord = lightTemperature.FirstOrDefault(mappedThing => mappedThing.sourceStart < light && mappedThing.sourceStart + mappedThing.range > light);
+                    var temperature = temperatureRecord != null ? temperatureRecord.destStart + (light - temperatureRecord.sourceStart) : light;
                     Log($"To temperature: {temperature}");
 
-                    var humidity = temperatureHumidity.TryGetValue(temperature, out long foundHumidity) ? foundHumidity : temperature;
+                    var humidityRecord = temperatureHumidity.FirstOrDefault(mappedThing => mappedThing.sourceStart < temperature && mappedThing.sourceStart + mappedThing.range > temperature);
+                    var humidity = humidityRecord != null ? humidityRecord.destStart + (temperature - humidityRecord.sourceStart) : temperature;
                     Log($"To humidity: {humidity}");
 
-                    var location = humidityLocation.TryGetValue(humidity, out long foundLocation) ? foundLocation : humidity;
+                    var locationRecord = humidityLocation.FirstOrDefault(mappedThing => mappedThing.sourceStart < humidity && mappedThing.sourceStart + mappedThing.range > humidity);
+                    var location = locationRecord != null ? locationRecord.destStart + (humidity - locationRecord.sourceStart) : humidity;
                     Log($"To location: {location}");
 
                     locations.Add(location);
@@ -208,6 +174,13 @@ namespace _2023
 
                 return locations.Min().ToString();
             }
+        }
+
+        internal class ThingMap(long sourceStart, long destStart, long range)
+        {
+            public long sourceStart = sourceStart;
+            public long destStart = destStart;
+            public long range = range;
         }
 
         private static void Log(string message)
