@@ -8,7 +8,10 @@ namespace _2023
             // Console.WriteLine(DayTwo.Solve("./DayTwo/input.txt"));
             // Console.WriteLine(DayThree.Solve("./DayThree/input.txt"));
             // Console.WriteLine(DayFour.Solve("./DayFour/input.txt"));
-            Console.WriteLine(DayFive.Solve("./DayFive/input.txt"));
+            // var dayFive = new DayFive():
+            // var dayFive = new DayFiveReverse();
+            // dayFive.Solve("./DayFive/input.txt");
+            Console.WriteLine(DaySix.Solve("./DaySix/input.txt"));
         }
     }
 }
