@@ -1,8 +1,9 @@
 using System.Collections.Concurrent;
+using System.Text.RegularExpressions;
 
 namespace _2023
 {
-    public class DayFive
+    public class DayFiveReverse
     {
         internal HashSet<ThingMap> seedSoil = [];
         internal HashSet<ThingMap> soilFertilizer = [];
@@ -142,24 +143,49 @@ namespace _2023
                 // Console.WriteLine("Finished parsing file.");
             }
 
-            long minLocation = 99999999999999;
+            var seedRanges = new HashSet<SeedRange>();
             for (int i = 0; i < seeds.Count; i += 2)
             {
-                var startSeed = seeds[i];
-                var endSeed = seeds[i] + seeds[i + 1];
-
-                Log($"Mapping seeds: {startSeed} to {endSeed}");
-                var mappedLocations = new ConcurrentDictionary<long,byte>();
-                mappedLocations.TryAdd(minLocation,0);
-                Parallel.For(startSeed, endSeed, seed =>
-                {
-                    mappedLocations.TryAdd(MapSeedToLocation(seed),0);
-                });
-                minLocation = mappedLocations.Keys.Min();
-                Console.WriteLine($"Parsed seed set {i/2+1}. Current min={minLocation}.");
+                seedRanges.Add(new SeedRange(seeds[i], seeds[i + 1]));
             }
 
-            Console.WriteLine(minLocation.ToString());
+            long minLocation = 99999999999999;
+            var location = humidityLocation.MinBy(range => range.destStart) ?? new ThingMap(99999999999999, 99999999999999, 0);
+
+            var startLocation = location.destStart;
+            var endLocation = location.destStart + location.range;
+
+            for (var findLocation = startLocation; findLocation <= endLocation; findLocation++)
+            {
+                var seed = MapLocationToSeed(findLocation);
+                if (seedRanges.Any(range => range.start <= seed && range.start + range.range >= seed))
+                {
+                    minLocation = Math.Min(minLocation, findLocation);
+                    break;
+                }
+            }
+
+            // minLocation = Math.Min(minLocation, seedRanges.Min(range => range.start));
+            Console.WriteLine(minLocation);
+
+
+            // for (int i = 0; i < seeds.Count; i += 2)
+            // {
+            //     var startSeed = seeds[i];
+            //     var endSeed = seeds[i] + seeds[i + 1];
+
+            //     Log($"Mapping seeds: {startSeed} to {endSeed}");
+            //     var mappedLocations = new ConcurrentDictionary<long, byte>();
+            //     mappedLocations.TryAdd(minLocation, 0);
+            //     Parallel.For(startSeed, endSeed, seed =>
+            //     {
+            //         mappedLocations.TryAdd(MapSeedToLocation(seed), 0);
+            //     });
+            //     minLocation = mappedLocations.Keys.Min();
+            //     Console.WriteLine($"Parsed seed set {i / 2 + 1}. Current min={minLocation}.");
+            // }
+
+            // Console.WriteLine(minLocation.ToString());
         }
 
         private long MapSeedToLocation(long seed)
@@ -189,11 +215,51 @@ namespace _2023
             return location;
         }
 
+        private long MapLocationToSeed(long location)
+        {
+            Log($"Mapping location: {location}");
+
+            var humidity = FindMappedValueReverse(humidityLocation, location);
+            Log($"To humidity: {humidity}");
+
+            var temperature = FindMappedValueReverse(temperatureHumidity, humidity);
+            Log($"To temperature: {temperature}");
+
+            var light = FindMappedValueReverse(lightTemperature, temperature);
+            Log($"To light: {light}");
+
+            var water = FindMappedValueReverse(waterLight, light);
+            Log($"To water: {water}");
+
+            var fertilizer = FindMappedValueReverse(fertilizerWater, water);
+            Log($"To fertilizer: {fertilizer}");
+
+            var soil = FindMappedValueReverse(soilFertilizer, fertilizer);
+            Log($"To soil: {soil}");
+
+            var seed = FindMappedValueReverse(seedSoil, soil);
+            Log($"To seed: {seed}");
+
+            return seed;
+        }
+
+        private static long FindMappedValueReverse(IEnumerable<ThingMap> mapOfThings, long valueToMap)
+        {
+            var foundRecord = mapOfThings.AsParallel().FirstOrDefault(mappedThing => mappedThing.destStart <= valueToMap && mappedThing.destStart + mappedThing.range >= valueToMap);
+            return foundRecord != null ? foundRecord.sourceStart + (valueToMap - foundRecord.sourceStart) : valueToMap;
+        }
+
         private static long FindMappedValue(IEnumerable<ThingMap> mapOfThings, long valueToMap)
         {
 
             var foundRecord = mapOfThings.AsParallel().FirstOrDefault(mappedThing => mappedThing.sourceStart <= valueToMap && mappedThing.sourceStart + mappedThing.range >= valueToMap);
             return foundRecord != null ? foundRecord.destStart + (valueToMap - foundRecord.sourceStart) : valueToMap;
+        }
+
+        internal class SeedRange(long start, long range)
+        {
+            public long start = start;
+            public long range = range;
         }
 
         internal class ThingMap(long sourceStart, long destStart, long range)
