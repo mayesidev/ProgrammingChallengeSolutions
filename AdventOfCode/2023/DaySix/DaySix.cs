@@ -4,9 +4,11 @@ namespace _2023
     {
         public static string Solve(string filePath)
         {
+            int total = 1;
+            IEnumerable<int> times = [];
+            IEnumerable<int> distances = [];
             using (StreamReader reader = File.OpenText(filePath))
             {
-                var total = 0;
                 while (!reader.EndOfStream)
                 {
                     string? line = reader.ReadLine();
@@ -15,10 +17,37 @@ namespace _2023
                         continue;
                     }
 
-                    // total += ParseLine(line);
+                    var input = line.Split(":", StringSplitOptions.TrimEntries);
+                    var inputNums = input[1].Split(' ', StringSplitOptions.RemoveEmptyEntries).Select(int.Parse);
+                    if (input[0].StartsWith("Time"))
+                    {
+                        times = inputNums;
+                    }
+                    else
+                    {
+                        distances = inputNums;
+                    }
                 }
-                return total.ToString();
             }
+
+            for (int i = 0; i < times.Count(); i++)
+            {
+                var time = times.ElementAt(i);
+                var recordDistance = distances.ElementAt(i);
+                var foundDistances = 0;
+                var holdTime = 1;
+                while (holdTime < time)
+                {
+                    if (holdTime * (time - holdTime) > recordDistance)
+                    {
+                        foundDistances++;
+                    }
+                    holdTime++;
+                }
+                total *= foundDistances;
+            }
+
+            return total.ToString();
         }
     }
 }
