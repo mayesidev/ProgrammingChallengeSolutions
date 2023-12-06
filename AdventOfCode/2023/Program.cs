@@ -11,7 +11,7 @@ namespace _2023
             // var dayFive = new DayFive():
             // var dayFive = new DayFiveReverse();
             // dayFive.Solve("./DayFive/input.txt");
-            Console.WriteLine(DaySix.Solve("./DaySix/input.txt"));
+            Console.WriteLine(DaySix.SolvePart2("./DaySix/input.txt"));
         }
     }
 }

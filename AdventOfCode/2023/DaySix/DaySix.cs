@@ -49,5 +49,46 @@ namespace _2023
 
             return total.ToString();
         }
+
+        public static string SolvePart2(string filePath)
+        {
+            long total = 0;
+            long times = -1;
+            long distances = -1;
+            using (StreamReader reader = File.OpenText(filePath))
+            {
+                while (!reader.EndOfStream)
+                {
+                    string? line = reader.ReadLine();
+                    if (string.IsNullOrEmpty(line))
+                    {
+                        continue;
+                    }
+
+                    var input = line.Split(":", StringSplitOptions.TrimEntries);
+                    var inputNums = long.Parse(input[1].Split(' ', StringSplitOptions.RemoveEmptyEntries).Aggregate((first, next) => $"{first}{next}"));
+                    if (input[0].StartsWith("Time"))
+                    {
+                        times = inputNums;
+                    }
+                    else
+                    {
+                        distances = inputNums;
+                    }
+                }
+            }
+
+            var holdTime = 1;
+            while (holdTime < times)
+            {
+                if (holdTime * (times - holdTime) > distances)
+                {
+                    total++;
+                }
+                holdTime++;
+            }
+
+            return total.ToString();
+        }
     }
 }
