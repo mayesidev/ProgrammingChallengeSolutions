@@ -1,6 +1,6 @@
 namespace _2023
 {
-    public class DayZero
+    public class DaySeven
     {
         public static string Solve(string filePath)
         {
