@@ -83,23 +83,9 @@ namespace _2023
             }
 
             var maxFirstLoop = distancesToFirstZ.Values.Max();
-            var minLoops = LeastCommonMultiple(distancesToLoop.Values);
+            var minLoops = Utilities.LeastCommonMultiple(distancesToLoop.Values);
 
             return total.ToString();
-        }
-
-        private static long LeastCommonMultiple(IEnumerable<long> numbers)
-        {
-            return numbers.Aggregate(LeastCommonMultiple);
-        }
-
-        private static long LeastCommonMultiple(long a, long b)
-        {
-            return Math.Abs(a * b) / GreatestCommonDenominator(a, b);
-        }
-        private static long GreatestCommonDenominator(long a, long b)
-        {
-            return b == 0 ? a : GreatestCommonDenominator(b, a % b);
         }
 
         internal class Node(string current, string left, string right)
