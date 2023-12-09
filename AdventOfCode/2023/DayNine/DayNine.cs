@@ -42,10 +42,10 @@ namespace _2023
                 var previouslyAddedValue = 0L;
                 for (var i = subsequences.Count - 1; i > 0; i--)
                 {
-                    previouslyAddedValue += subsequences[i].Last();
+                    previouslyAddedValue = subsequences[i].First() - previouslyAddedValue;
                     // Debug.WriteLine($"Line: {sequence.Key} Subsequence: {i} Added: {previouslyAddedValue}");
                 }
-                total += sequence.Value.Last() + previouslyAddedValue;
+                total += sequence.Value.First() - previouslyAddedValue;
             }
             return total.ToString();
         }
