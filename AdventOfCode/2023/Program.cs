@@ -14,7 +14,8 @@ namespace _2023
             // Console.WriteLine(DaySix.SolvePart2("./DaySix/input.txt"));
             // var daySeven = new DaySeven();
             // Console.WriteLine(daySeven.Solve("./DaySeven/input.txt"));
-            Console.WriteLine(DayEight.Solve("./DayEight/input.txt"));
+            // Console.WriteLine(DayEight.Solve("./DayEight/input.txt"));
+            Console.WriteLine(DayNine.Solve("./DayNine/input.txt"));
         }
     }
 }
