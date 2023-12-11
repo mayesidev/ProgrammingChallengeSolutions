@@ -1,12 +1,9 @@
-using System.Diagnostics;
-
 namespace _2023
 {
     public class DayEleven
     {
         public static string Solve(string filePath)
         {
-            var total = 0;
             HashSet<Coordinates> coordinates = [];
             using (StreamReader reader = File.OpenText(filePath))
             {
@@ -19,54 +16,21 @@ namespace _2023
                         continue;
                     }
 
-                    var foundGalaxy = false;
-                    HashSet<Coordinates> dupedCoordinates = [];
                     for (int i = 1; i <= line.Length; i++)
                     {
                         var isGalaxy = line[i - 1].Equals('#');
                         var newCoordinates = new Coordinates(lineIndex, i, isGalaxy);
                         coordinates.Add(newCoordinates);
-
-                        if (isGalaxy)
-                        {
-                            foundGalaxy = true;
-                        }
-                        else
-                        {
-                            dupedCoordinates.Add(new Coordinates(lineIndex + 1, i, isGalaxy));
-                        }
-                    }
-
-                    // Account for doubling blank rows
-                    if (!foundGalaxy)
-                    {
-                        coordinates.UnionWith(dupedCoordinates);
-                        lineIndex++;
                     }
 
                     lineIndex++;
                 }
             }
 
-            // Account for doubling blank cols
             var colNoGalaxies = Enumerable.Range(1, coordinates.Max(coord => coord.y)).Except(coordinates.Where(coord => coord.galaxy).Select(coord => coord.y));
-            HashSet<Coordinates> fixedCoordinates = [];
-            foreach (var coordinate in coordinates)
-            {
-                var numberOfAddedColumns = colNoGalaxies.Where(col => col < coordinate.y).Count();
-                var newY = coordinate.y + numberOfAddedColumns;
+            var rowNoGalaxies = Enumerable.Range(1, coordinates.Max(coord => coord.x)).Except(coordinates.Where(coord => coord.galaxy).Select(coord => coord.x));
 
-                fixedCoordinates.Add(new Coordinates(coordinate.x, newY, coordinate.galaxy));
-
-                if (colNoGalaxies.Contains(coordinate.y))
-                {
-                    fixedCoordinates.Add(new Coordinates(coordinate.x, newY + 1, coordinate.galaxy));
-                }
-            }
-
-            coordinates = fixedCoordinates;
-
-            List<long> diffs = [];
+            long diffs = 0;
             var coordinatesWithGalaxies = coordinates.Where(coord => coord.galaxy);
             HashSet<Coordinates> visitedGalaxies = [];
             foreach (var galaxyCoord in coordinatesWithGalaxies)
@@ -75,13 +39,21 @@ namespace _2023
                 var remainingGalaxies = coordinatesWithGalaxies.Except(visitedGalaxies);
                 foreach (var otherGalaxyCoord in remainingGalaxies)
                 {
-                    var xDiff = galaxyCoord.x - otherGalaxyCoord.x;
-                    var yDiff = galaxyCoord.y - otherGalaxyCoord.y;
-                    diffs.Add(Math.Abs(xDiff) + Math.Abs(yDiff));
+                    // multiplier = 1 works for part 1, but part 2 needs to be problem multiplier-1 for some reason...
+                    var distanceMultiplier = 999999;
+                    var coordXModifier = rowNoGalaxies.Where(row => row < galaxyCoord.x).Count() * distanceMultiplier;
+                    var otherCoordXModifier = rowNoGalaxies.Where(row => row < otherGalaxyCoord.x).Count() * distanceMultiplier;
+
+                    var coordYModifer = colNoGalaxies.Where(col => col < galaxyCoord.y).Count() * distanceMultiplier;
+                    var otherCoordYModifier = colNoGalaxies.Where(col => col < otherGalaxyCoord.y).Count() * distanceMultiplier;
+
+                    var xDiff = (galaxyCoord.x + coordXModifier) - (otherGalaxyCoord.x + otherCoordXModifier);
+                    var yDiff = (galaxyCoord.y + coordYModifer) - (otherGalaxyCoord.y + otherCoordYModifier);
+                    diffs += Math.Abs(xDiff) + Math.Abs(yDiff);
                 }
             }
 
-            return diffs.Sum().ToString();
+            return diffs.ToString();
         }
 
         internal class Coordinates(int x, int y, bool galaxy)
