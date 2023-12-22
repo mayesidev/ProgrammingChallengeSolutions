@@ -1,3 +1,5 @@
+using System.Diagnostics;
+
 namespace _2023
 {
     public class DayEight
@@ -44,7 +46,7 @@ namespace _2023
                 var reachedZCount = 0;
                 var distanceToLoop = 0;
                 var i = 0;
-                while (reachedZCount > 2)
+                while (reachedZCount < 2)
                 {
                     var direction = directions[currentIndex];
                     if (direction == 'L')
@@ -54,6 +56,11 @@ namespace _2023
                     else
                     {
                         currentNode = nodes.Single(nextNode => node.right == nextNode.current);
+                    }
+
+                    if (currentNode.current.EndsWith('Z'))
+                    {
+                        reachedZCount++;
                     }
 
                     if (reachedZCount == 0)
@@ -84,6 +91,7 @@ namespace _2023
 
             var maxFirstLoop = distancesToFirstZ.Values.Max();
             var minLoops = Utilities.LeastCommonMultiple(distancesToLoop.Values);
+            Debug.WriteLine($"minLoops: {minLoops}");
 
             return total.ToString();
         }

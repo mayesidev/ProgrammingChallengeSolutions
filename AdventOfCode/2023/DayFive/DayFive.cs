@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.Diagnostics;
 
 namespace _2023
 {
@@ -139,7 +140,13 @@ namespace _2023
                         humidityLocation.Add(new ThingMap(sourceNum, destinationNum, rangeNum));
                     }
                 }
-                // Console.WriteLine("Finished parsing file.");
+                Debug.WriteLine("Finished parsing file.");
+            }
+
+            HashSet<ThingMap> fullMap = [];
+            foreach (var thing in seedSoil)
+            {
+                fullMap.Add(new ThingMap(thing.sourceStart, thing.destStart, thing.range));
             }
 
             long minLocation = 99999999999999;
@@ -149,17 +156,36 @@ namespace _2023
                 var endSeed = seeds[i] + seeds[i + 1];
 
                 Log($"Mapping seeds: {startSeed} to {endSeed}");
-                var mappedLocations = new ConcurrentDictionary<long,byte>();
-                mappedLocations.TryAdd(minLocation,0);
+                var mappedLocations = new ConcurrentDictionary<long, byte>();
+                mappedLocations.TryAdd(minLocation, 0);
                 Parallel.For(startSeed, endSeed, seed =>
                 {
-                    mappedLocations.TryAdd(MapSeedToLocation(seed),0);
+                    mappedLocations.TryAdd(MapSeedToLocation(seed), 0);
                 });
                 minLocation = mappedLocations.Keys.Min();
-                Console.WriteLine($"Parsed seed set {i/2+1}. Current min={minLocation}.");
+                Debug.WriteLine($"Parsed seed set {i / 2 + 1}. Current min={minLocation}.");
             }
 
-            Console.WriteLine(minLocation.ToString());
+            Debug.WriteLine(minLocation.ToString());
+        }
+
+        private HashSet<ThingMap> combineMapCollections(HashSet<ThingMap> firstMapCollection, HashSet<ThingMap> nextMapCollection)
+        {
+            HashSet<ThingMap> combinedMaps = [];
+            foreach (var nextMap in nextMapCollection)
+            {
+                var overlap = firstMapCollection.Where(firstMap => Utilities.RangesOverlap(
+                    firstMap.destStart,
+                    firstMap.destStart + firstMap.range,
+                    nextMap.sourceStart,
+                    nextMap.sourceStart + nextMap.range));
+
+                if (overlap.Any())
+                {
+
+                }
+            }
+            return combinedMaps;
         }
 
         private long MapSeedToLocation(long seed)
@@ -191,8 +217,7 @@ namespace _2023
 
         private static long FindMappedValue(IEnumerable<ThingMap> mapOfThings, long valueToMap)
         {
-
-            var foundRecord = mapOfThings.AsParallel().FirstOrDefault(mappedThing => mappedThing.sourceStart <= valueToMap && mappedThing.sourceStart + mappedThing.range >= valueToMap);
+            var foundRecord = mapOfThings.FirstOrDefault(mappedThing => mappedThing.sourceStart <= valueToMap && mappedThing.sourceStart + mappedThing.range >= valueToMap);
             return foundRecord != null ? foundRecord.destStart + (valueToMap - foundRecord.sourceStart) : valueToMap;
         }
 
@@ -201,11 +226,16 @@ namespace _2023
             public long sourceStart = sourceStart;
             public long destStart = destStart;
             public long range = range;
+
+            public long GetOffset()
+            {
+                return destStart - sourceStart;
+            }
         }
 
         private static void Log(string message)
         {
-            // Console.WriteLine(message);
+            Debug.WriteLine(message);
         }
 
         private enum ParsingMapEnum
