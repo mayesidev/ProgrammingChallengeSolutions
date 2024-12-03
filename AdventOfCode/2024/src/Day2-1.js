@@ -30,18 +30,18 @@ lines.forEach((line)=>
 
                 isSafe = safeDirection && safeIncrement;
 
-                console.log("val:" + val);
-                console.log("pVal:" + previousVal);
-                console.log("line:" + lineIncreasing);
-                console.log("incStep:" + val>previousVal);
-                console.log("inc:" + increasing);
-                console.log("decStep:" + val<previousVal);
-                console.log("dec:" + decreasing);
-                console.log("sDir:" + safeDirection);
-                console.log("step:" + increment);
-                console.log("sStep:" + safeIncrement);
-                console.log("safe:" + isSafe);
-                console.log("----------");
+                // console.log("val:" + val);
+                // console.log("pVal:" + previousVal);
+                // console.log("line:" + lineIncreasing);
+                // console.log("incStep:" + val>previousVal);
+                // console.log("inc:" + increasing);
+                // console.log("decStep:" + val<previousVal);
+                // console.log("dec:" + decreasing);
+                // console.log("sDir:" + safeDirection);
+                // console.log("step:" + increment);
+                // console.log("sStep:" + safeIncrement);
+                // console.log("safe:" + isSafe);
+                // console.log("----------");
 
                 if(isSafe && i===vals.length-1){
                     safeCount++;
